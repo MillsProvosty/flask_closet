@@ -37,6 +37,8 @@ class User(db.Model):
         self.username = username
 
 
+
+
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(100))
