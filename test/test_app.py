@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app import User
+from models import User
 import json
 
 
