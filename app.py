@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from flask_marshmallow import Marshmallow
 
 # init app
 app = Flask(__name__)
@@ -18,12 +19,51 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 db = SQLAlchemy(app)
 db.init_app(app)
+ma = Marshmallow(app)
+
+
+# Models:
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    username = db.Column(db.String(100))
+
+    def __init__(self, email, password, username):
+        self.email = email
+        self.password = password
+        self.username = username
+
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(100))
+    occasion = db.Column(db.String(100))
+    color = db.Column(db.String(100))
+    season = db.Column(db.String(100))
+    image = db.Column(db.String(500))
+
+    def __init__(self, type, occasion, color, season, image):
+        self.type = type
+        self.occasion = occasion
+        self.color = color
+        self.season = season
+        self.image = image
+
+
+# Schemas:
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'username', 'email', 'password')
+
+
+# Init Schema:
+user_schema = UserSchema()
 
 #
 # @app.route('/')
 # def hello_world():
 #     return 'Hello World!'
-
 
 
 # db.create_all()
