@@ -24,3 +24,8 @@ $ type psql to enter into postgres, then ```CREATE DB flask_closet;```
 $  Back in the termina, ```python app.py db migrate``` followed by ```python app.py db upgrade``` to migrate and update the
  database
 $ ```python app.py db downgrade``` to reverse any migrations
+
+
+## Helpful Resources
+https://realpython.com/python-json/
+https://scotch.io/bar-talk/processing-incoming-request-data-in-flask
