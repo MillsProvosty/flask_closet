@@ -25,6 +25,7 @@ $  Back in the terminal, ```python app.py db migrate``` followed by ```python ap
  the
  database
 $ ```python app.py db downgrade``` to reverse any migrations
+$ To pry into a section ```import pdb; pdb.set_trace()```
 
 
 ## Helpful Resources

@@ -5,9 +5,6 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_marshmallow import Marshmallow
 import bcrypt
 import json
-from json import JSONEncoder
-import jsonpickle
-from flask.json import JSONEncoder
 
 # init app
 app = Flask(__name__)
@@ -24,7 +21,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-# print(dir(db.session))
 db.init_app(app)
 ma = Marshmallow(app)
 
@@ -41,9 +37,6 @@ class Person(db.Model):
         self.email = email
         self.password = password
 
-    #
-    # def __repr__(self):
-    #     return f"Person('{self.username}', '{self.email}')"
 
     def serialize(self):
         return {
@@ -67,26 +60,6 @@ class Item(db.Model):
         self.color = color
         self.season = season
         self.image = image
-    #
-    # def serialize(self):
-    #     return {
-    #         'gene_id': self.gene_id,
-    #         'gene_symbol': self.gene_symbol,
-    #         'p_value': self.p_value,
-    #     }
-
-    # def __repr__(self):
-    #     return f"Item('{self.clothing_type}', '{self.occasion}', '{self.color}', '{self.season}', '{self.image}')"
-
-
-# class PersonEncoder(JSONEncoder):
-#     def default(self, o):
-#         return o.__dict__
-#
-#
-# class ItemEncoder(JSONEncoder):
-#     def default(self, o):
-#         return o.__dict__
 
 
 # Schemas:
@@ -98,24 +71,6 @@ class PersonSchema(ma.Schema):
 class ItemSchema(ma.Schema):
     class Meta:
         fields = ('id', 'clothing_type', 'occasion', 'color', 'season', 'image')
-
-
-# Routes
-# users = [{
-#     "username": "Mills",
-#     "email": "Mills@email.com",
-#     "password": "Password"
-# },
-#     {
-#         "username": "Jeff",
-#         "email": "Jeff@email.com",
-#         "password": "Password1"
-#     },
-#     {
-#         "username": "Esters",
-#         "email": "Ester@email.com",
-#         "password": "Password2"
-#     }]
 
 
 @app.route('/api/v1/persons', methods=['GET'])
@@ -138,19 +93,8 @@ def create_person():
 
     db.session.add(new_user)
     db.session.commit()
-    # import pdb;
-    # pdb.set_trace()
 
     return new_user.serialize(), 201
-
-
-#
-# @app.route('/api/v1.0/tasks/<int:id>', methods=['GET'])
-# def get_task(id):
-#     user = [user for user in users if user['id'] == id]
-#     if len(user) == 0:
-#         abort(404)
-#     return jsonify({'task': user[0]})
 
 
 # Init Schema:
