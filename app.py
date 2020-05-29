@@ -1,7 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from flask_marshmallow import Marshmallow
+import bcrypt
+import json
 
 # init app
 app = Flask(__name__)
@@ -16,45 +19,88 @@ POSTGRES = {
 }
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 db.init_app(app)
+ma = Marshmallow(app)
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
-
-
-class User(db.Model):
+# Models:
+class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    username = db.Column(db.String(100))
+    username = db.Column(db.String(200))
+    email = db.Column(db.String(200), unique=True)
+    password = db.Column(db.String(500))
 
-    def __init__(self, email, password, username):
+    def __init__(self, username, email, password):
+        self.username = username
         self.email = email
         self.password = password
-        self.username = username
+
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email
+        }
 
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(100))
+    clothing_type = db.Column(db.String(100))
     occasion = db.Column(db.String(100))
     color = db.Column(db.String(100))
     season = db.Column(db.String(100))
     image = db.Column(db.String(500))
 
-    def __init__(self, type, occasion, color, season, image):
-        self.type = type
+    def __init__(self, clothing_type, occasion, color, season, image):
+        self.clothing_type = clothing_type
         self.occasion = occasion
         self.color = color
         self.season = season
         self.image = image
 
 
-# db.create_all()
-guest = User(email='guest@example.com', password='password', username='Mills')
+# Schemas:
+class PersonSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'username', 'email', 'password')
+
+
+class ItemSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'clothing_type', 'occasion', 'color', 'season', 'image')
+
+
+@app.route('/api/v1/persons', methods=['GET'])
+def get_persons():
+    people = Person.query.all()
+    data = persons_schema.dump(people)
+    return jsonify(data), 200
+
+
+@app.route('/api/v1/person', methods=['POST'])
+def create_person():
+    data = request.data
+    json_formatted_data = json.loads(data)
+
+    username = json_formatted_data['username']
+    email = json_formatted_data['email']
+    password = bcrypt.hashpw(json_formatted_data['password'].encode('utf8'), bcrypt.gensalt())
+
+    new_user = Person(username, email, password)
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return new_user.serialize(), 201
+
+
+# Init Schema:
+person_schema = PersonSchema()
+persons_schema = PersonSchema(many=True)
+item_schema = ItemSchema()
 
 manager = Manager(app)
 migrate = Migrate(app, db)
