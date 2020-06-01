@@ -98,7 +98,6 @@ def create_person():
 
 
 
-
 # Init Schema:
 person_schema = PersonSchema()
 persons_schema = PersonSchema(many=True)
