@@ -97,6 +97,12 @@ def create_person():
     return new_user.serialize(), 201
 
 
+@app.route('/api/v1/person/<id>', methods=['GET'])
+def get_person(id):
+    person = Person.query.get(id)
+    data = person_schema.dump(person)
+
+    return jsonify(data), 200
 
 # Init Schema:
 person_schema = PersonSchema()
