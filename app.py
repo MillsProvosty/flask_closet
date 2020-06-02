@@ -97,6 +97,25 @@ def create_person():
     return new_user.serialize(), 201
 
 
+@app.route('/api/v1/person/<id>', methods=['GET'])
+def get_person(id):
+    person = Person.query.get(id)
+    data = person_schema.dump(person)
+
+    return jsonify(data), 200
+
+@app.route('/api/v1/person/<id>', methods=['DELETE'])
+def delete_person(id):
+    person = Person.query.get(id)
+    db.session.delete(person)
+    db.session.commit()
+
+    people = Person.query.all()
+    data = persons_schema.dump(people)
+
+    return jsonify(data), 204
+
+
 
 # Init Schema:
 person_schema = PersonSchema()
