@@ -154,10 +154,21 @@ def create_item():
     return item_schema.jsonify(new_item), 201
 
 
+# return all items
 @app.route('/api/v1/items', methods=['GET'])
 def get_items():
     items = Item.query.all()
     data = items_schema.dump(items)
+
+    return jsonify(data), 200
+
+
+# return specific item
+@app.route('/api/v1/item/<id>', methods=['GET'])
+def get_item(id):
+    item = Item.query.get(id)
+    data = item_schema.dump(item)
+
     return jsonify(data), 200
 
 
