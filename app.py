@@ -172,6 +172,18 @@ def get_item(id):
     return jsonify(data), 200
 
 
+@app.route('/api/v1/item/<id>', methods=['DELETE'])
+def delete_item(id):
+    item = Item.query.get(id)
+    db.session.delete(item)
+    db.session.commit()
+
+    items = Item.query.all()
+    data = items_schema.dump(items)
+
+    return jsonify(data), 204
+
+
 # Init Schema:
 person_schema = PersonSchema()
 persons_schema = PersonSchema(many=True)
