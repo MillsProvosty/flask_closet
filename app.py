@@ -145,7 +145,7 @@ def create_item():
     new_item = Item(clothing_type, occasion, color, season, image)
 
     db.session.add(new_item)
-    db.session.commit(new_item)
+    db.session.commit()
 
     return item_schema.jsonify(new_item), 201
 
