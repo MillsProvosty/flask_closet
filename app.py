@@ -40,20 +40,22 @@ class Person(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'username': self.username,
-            'email': self.email
+            'email': self.email,
+            'username': self.username
         }
 
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(300))
     clothing_type = db.Column(db.String(100))
     occasion = db.Column(db.String(100))
     color = db.Column(db.String(100))
     season = db.Column(db.String(100))
     image = db.Column(db.String(500))
 
-    def __init__(self, clothing_type, occasion, color, season, image):
+    def __init__(self, description, clothing_type, occasion, color, season, image):
+        self.description = description
         self.clothing_type = clothing_type
         self.occasion = occasion
         self.color = color
@@ -62,6 +64,7 @@ class Item(db.Model):
 
     def serialize(self):
         return {
+            'description': self.description,
             'clothing_type': self.clothing_type,
             'occasion': self.occasion,
             'color': self.color,
@@ -78,7 +81,7 @@ class PersonSchema(ma.Schema):
 
 class ItemSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'clothing_type', 'occasion', 'color', 'season', 'image')
+        fields = ('id', 'description', 'clothing_type', 'occasion', 'color', 'season', 'image')
 
 
 # Routes
@@ -136,13 +139,14 @@ def create_item():
     data = request.data
     json_formatted_data = json.loads(data)
 
+    description = json_formatted_data['description']
     clothing_type = json_formatted_data['clothing_type']
     occasion = json_formatted_data['occasion']
     color = json_formatted_data['color']
     season = json_formatted_data['season']
     image = json_formatted_data['image']
 
-    new_item = Item(clothing_type, occasion, color, season, image)
+    new_item = Item(description, clothing_type, occasion, color, season, image)
 
     db.session.add(new_item)
     db.session.commit()
@@ -150,10 +154,18 @@ def create_item():
     return item_schema.jsonify(new_item), 201
 
 
+@app.route('/api/v1/items', methods=['GET'])
+def get_items():
+    items = Item.query.all()
+    data = items_schema.dump(items)
+    return jsonify(data), 200
+
+
 # Init Schema:
 person_schema = PersonSchema()
 persons_schema = PersonSchema(many=True)
 item_schema = ItemSchema()
+items_schema = ItemSchema(many=True)
 
 manager = Manager(app)
 migrate = Migrate(app, db)

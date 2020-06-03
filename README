@@ -22,8 +22,7 @@ $ pipenv install alembic
 $  ```python app.py db init``` to create the migration
 $ type psql to enter into postgres, then ```CREATE DATABASE flask_closet;```
 $  Back in the terminal, ```python app.py db migrate``` followed by ```python app.py db upgrade``` to migrate and update
- the
- database
+ the database
 $ ```python app.py db downgrade``` to reverse any migrations
 $ To pry into a section ```import pdb; pdb.set_trace()```
 
